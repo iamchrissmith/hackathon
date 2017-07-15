@@ -7,8 +7,8 @@ pragma solidity ^0.4.11;
 
 contract Rock {
 	struct Interaction {
-		// bool[52] player1Results = bool[52];
-		// bool[52] player2Results = bool[52];
+		bool[] player1Results;
+		bool[] player2Results;
 		address player1;
 		address player2;
 		uint player2FailureCount;
@@ -36,16 +36,19 @@ contract Rock {
 		payable
 		external 
 	{
-		// if (_periodLength == 0)
-		// 	_periodLength = 1 weeks;
+		uint periodLength = _periodLength;
+		if (_periodLength == 0)
+			periodLength = 1 weeks;
 		// if (_periodCount == 0)
 		// 	_periodCount = 52;
 		interactions[msg.sender] = Interaction({
+			player1Results: new bool[](52),
+			player2Results: new bool[](52),
 			player1: _player1,
 			player2: _player2,
 			player1FailureCount: 0,
 			player2FailureCount: 0,
-			periodLength: _periodLength,
+			periodLength: periodLength,
 			periodCount: _periodCount,
 			periodOn: 0,
 			amountLost: 0,
@@ -67,10 +70,10 @@ contract Rock {
 			current.player2FailureCount += 1;
 		if (_player1Result || _player2Result) {
 			current.amountLost += 2;
-			// send(current.charity, 2*10**18);
+			current.charity.transfer(2*10**18);
 		}
-		// current.Player1Results[current.periodOn] = _player1Result;
-		// current.Player2Results[current.periodOn] = _player2Result;
+		current.player1Results[current.periodOn] = _player1Result;
+		current.player2Results[current.periodOn] = _player2Result;
 		current.periodOn += 1;
 		if (current.periodOn == 52) 
 			endInteraction(current);
@@ -82,14 +85,14 @@ contract Rock {
 		current.interactionOver = true;
 	}
 
-	// function getInteractionResults()
-	// 	constant
-	// 	external
-	// 	returns (bytes32[], bytes23[])
-	// {
-	// 	Interaction current = interactions[msg.sender];
-	// 	return current.Player1Results, current.Player2Results;
-	// }
+	function getInteractionResults()
+		constant
+		external
+		returns (bool[], bool[])
+	{
+		Interaction current = interactions[msg.sender];
+		return (current.player1Results, current.player2Results);
+	}
 
 	function getFailureCounts()
 		constant
