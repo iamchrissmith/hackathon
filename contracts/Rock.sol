@@ -39,8 +39,6 @@ contract Rock {
 		uint periodLength = _periodLength;
 		if (_periodLength == 0)
 			periodLength = 1 weeks;
-		// if (_periodCount == 0)
-		// 	_periodCount = 52;
 		interactions[msg.sender] = Interaction({
 			player1Results: new bool[](52),
 			player2Results: new bool[](52),
@@ -62,7 +60,7 @@ contract Rock {
 		external
 	{
 		Interaction current = interactions[msg.sender];
-		if (current.interactionOver == false)
+		if (current.interactionOver == true)
 			revert();
 		if (_player1Result == false)
 			current.player1FailureCount += 1;
